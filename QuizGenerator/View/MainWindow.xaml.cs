@@ -37,5 +37,16 @@ namespace QuizGenerator
                 (this.DataContext as MainViewModel)?.LoadQuizFromDatabase(destinationFilePath);
             }
         }
+
+        private void OpenSaveFileDialog_Button(object sender, RoutedEventArgs e)
+        {
+            var dialog = new SaveFileDialog();
+
+            if (dialog.ShowDialog() == true)
+            {
+                string destinationFilePath = dialog.FileName;
+                (this.DataContext as MainViewModel)?.SaveQuizToDatabase(destinationFilePath);
+            }
+        }
     }
 }

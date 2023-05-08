@@ -11,6 +11,54 @@ namespace QuizGenerator.Model
     {
         //SqliteConnection connection = new SqliteConnection(@"Data Source=C:\quiz1.db");
 
+        public void SaveQuiz(Quiz quiz, string connectionString)
+        {
+            SqliteConnection connection = new SqliteConnection($"Data Source={connectionString}");
+            connection.Open();
+
+            string CreateQuizTableString = "CREATE TABLE IF NOT EXISTS quiz (id INTEGER PRIMARY KEY NOT NULL, title TEXT NOT NULL)";
+            string CreateQuestionTableString = "CREATE TABLE IF NOT EXISTS question (id INTEGER PRIMARY KEY NOT NULL, quiz_id INT NOT NULL REFERENCES quiz(id), title TEXT NOT NULL)";
+            string CreateAnswerTableString = "CREATE TABLE IF NOT EXISTS answer (id INTEGER PRIMARY KEY NOT NULL, question_id INT NOT NULL REFERENCES question(id), text TEXT NOT NULL, is_correct INT NOT NULL)";
+
+            SqliteCommand command = connection.CreateCommand();
+
+            // Create tables
+            command.CommandText = CreateQuizTableString;
+            command.ExecuteNonQuery();
+
+            command.CommandText = CreateQuestionTableString;
+            command.ExecuteNonQuery();
+
+            command.CommandText = CreateAnswerTableString;
+            command.ExecuteNonQuery();
+
+            // Insert quiz, answers, questions data
+            string InsertQuizString = "INSERT INTO quiz(id, title) VALUES (@quizid, @quiztitle)";
+            command.CommandText = InsertQuizString;
+            command.Parameters.Add(new SqliteParameter("@quizid", quiz.Id));
+            command.Parameters.Add(new SqliteParameter("@quiztitle", quiz.Name));
+            command.ExecuteNonQuery();
+
+            foreach (QuizQuestion question in quiz.Questions)
+            {
+                string InsertQuestionString = "INSERT INTO question(quiz_id, title) VALUES (@quizid, @questiontitle)";
+                command.CommandText = InsertQuestionString;
+                command.Parameters.Add(new SqliteParameter("@questiontitle", question.Name));
+                command.ExecuteNonQuery();
+
+                foreach (QuizAnswer answer in question.Answers)
+                {
+                    string InsertAnswerString = "INSERT INTO answer(question_id, text, is_correct) VALUES (@answerquestionid, @answertitle, @answercorrect)";
+                    command.CommandText = InsertAnswerString;
+                    command.Parameters.Add(new SqliteParameter("@answerquestionid", question.Id));
+                    command.Parameters.Add(new SqliteParameter("@answertitle", answer.Text));
+                    command.Parameters.Add(new SqliteParameter("@answercorrect", answer.IsCorrect));
+                    command.ExecuteNonQuery();
+                }
+            }
+            connection.Close();
+        }
+
         public Quiz? ReadQuiz(string connectionString)
         {
             SqliteConnection connection = new SqliteConnection($"Data Source={connectionString}");

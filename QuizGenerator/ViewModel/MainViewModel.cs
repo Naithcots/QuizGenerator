@@ -86,6 +86,11 @@ namespace QuizGenerator.ViewModel
             Answers = quiz.Questions[(int)currentQuestionId].Answers.ToArray();
         }
 
+        public void SaveQuizToDatabase(string connectionString)
+        {
+            dataAccess.SaveQuiz(quiz, connectionString);
+        }
+
 
         public void LoadQuizFromDatabase(string connectionString)
         {
