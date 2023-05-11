@@ -23,13 +23,17 @@
                 <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="40"></RowDefinition>
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Column="0" Grid.Row="0" FontWeight="Bold" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center">Generator Quizów</TextBlock>
-            <Button Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Width="120">Utwórz</Button>
-            <Button Click="OpenReadFileDialog_Button" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Width="120">Wczytaj</Button>
-            <Button Click="OpenSaveFileDialog_Button" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Width="120">Zapisz</Button>
-
+            <Button Command="{Binding CreateQuiz}" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" Width="120">Utwórz Quiz</Button>
+            <Button Click="OpenReadFileDialog_Button" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" Width="120">Wczytaj Quiz</Button>
+            <Button Click="OpenSaveFileDialog_Button" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" Width="120">Zapisz Quiz</Button>
+            <Button Command="{Binding CreateQuestion}" Grid.Column="0" Grid.Row="5" VerticalAlignment="Center" Width="120">Dodaj Pytanie</Button>
+            <Button Command="{Binding DeleteQuestion}" Grid.Column="0" Grid.Row="6" VerticalAlignment="Center" Width="120">Usuń Pytanie</Button>
         </Grid>
         <Grid Grid.Column="1">
             <Grid.ColumnDefinitions>
@@ -45,8 +49,8 @@
                 <RowDefinition Height="1*"></RowDefinition>
                 <RowDefinition Height="1*"></RowDefinition>
             </Grid.RowDefinitions>
-            <TextBlock Text="{Binding QuizName}" Grid.Column="0" Grid.ColumnSpan="2" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
-            <TextBlock Text="{Binding QuestionName}" Grid.Row="1" Grid.ColumnSpan="2" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"></TextBlock>
+            <TextBox Text="{Binding QuizName}" Grid.Column="0" Grid.ColumnSpan="2" FontSize="32" FontWeight="Bold" VerticalAlignment="Center"/>
+            <TextBox Text="{Binding QuestionName}" Grid.Row="1" Grid.ColumnSpan="2" FontSize="22" FontWeight="Bold" VerticalAlignment="Center"/>
 
             <TextBox Text="{Binding Answers[0].Text}" Grid.Column="0" Grid.Row="2" FontSize="16" Width="300" HorizontalAlignment="Left"></TextBox>
             <CheckBox IsChecked="{Binding Answers[0].IsCorrect}" Grid.Column="1" Grid.Row="2" VerticalAlignment="Center">Poprawna?</CheckBox>

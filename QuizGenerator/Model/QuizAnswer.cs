@@ -8,9 +8,15 @@ namespace QuizGenerator.Model
 {
     class QuizAnswer
     {
-        public long Id { get; set; }
+        public long? Id { get; set; }
         public string Text { get; set; }
         public long IsCorrect { get; set; }
+        public QuizAnswer(string text, long isCorrect)
+        {
+            this.Text = text;
+            this.IsCorrect = isCorrect;
+        }
+
         public QuizAnswer(long id, string text, long isCorrect)
         {
             this.Id = id;

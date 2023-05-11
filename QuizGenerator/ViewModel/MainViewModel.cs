@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Navigation;
 
 namespace QuizGenerator.ViewModel
 {
@@ -16,14 +17,18 @@ namespace QuizGenerator.ViewModel
         private Model.DataAccess dataAccess = new Model.DataAccess();
         private Quiz quiz;
 
+        public MainViewModel()
+        {
+            quiz = new Quiz();
+            CurrentQuestionId = 0;
+        }
+
         private long currentQuestionId = 0;
         public long CurrentQuestionId
         {
             get => currentQuestionId;
             set { currentQuestionId = value; HandleQuestionChange(); }
         }
-
-
 
         private string quizName = "";
         public string QuizName
@@ -32,7 +37,8 @@ namespace QuizGenerator.ViewModel
             set
             {
                 quizName = value;
-                PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(QuizName)));
+                quiz.Name = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(QuizName)));
             }
         }
 
@@ -43,7 +49,8 @@ namespace QuizGenerator.ViewModel
             set
             {
                 questionName = value;
-                PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(QuestionName)));
+                quiz.Questions[(int)currentQuestionId].Name = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(QuestionName)));
             }
         }
 
@@ -54,11 +61,58 @@ namespace QuizGenerator.ViewModel
             set
             {
                 answers = value;
-                PropertyChanged.Invoke(this, new PropertyChangedEventArgs(nameof(Answers)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Answers)));
             }
         }
 
-        public ICommand prevQuestion;
+        private ICommand createQuiz;
+        public ICommand CreateQuiz
+        {
+            get
+            {
+                return createQuiz ?? new RelayCommand(
+                    (o) => {
+                        quiz = new Quiz();
+                        QuizName = "";
+                        CurrentQuestionId = 0;
+                    },
+                    (o) => true
+                    );
+            }
+        }
+
+        private ICommand createQuestion;
+        public ICommand CreateQuestion
+        {
+            get
+            {
+                return createQuestion ?? new RelayCommand(
+                    (o) => {
+                        int newQuestionId = quiz.Questions.Count();
+                        quiz.Questions.Add(new QuizQuestion(newQuestionId, ""));
+                        CurrentQuestionId = newQuestionId;
+                    },
+                    (o) => true
+                    );
+            }
+        }
+
+        private ICommand deleteQuestion;
+        public ICommand DeleteQuestion
+        {
+            get
+            {
+                return deleteQuestion ?? new RelayCommand(
+                    (o) => {
+                        quiz.Questions.RemoveAt((int)currentQuestionId);
+                        CurrentQuestionId = currentQuestionId == 0 ? 0 : currentQuestionId - 1;
+                    },
+                    (o) => quiz.Questions.Count() > 1
+                    );
+            }
+        }
+
+        private ICommand prevQuestion;
         public ICommand PrevQuestion
         {
             get
@@ -82,8 +136,8 @@ namespace QuizGenerator.ViewModel
 
         public void HandleQuestionChange()
         {
-            QuestionName = quiz.Questions[(int)currentQuestionId].Name;
-            Answers = quiz.Questions[(int)currentQuestionId].Answers.ToArray();
+            QuestionName = quiz.Questions[(int)CurrentQuestionId].Name;
+            Answers = quiz.Questions[(int)CurrentQuestionId].Answers.ToArray();
         }
 
         public void SaveQuizToDatabase(string connectionString)
@@ -96,13 +150,13 @@ namespace QuizGenerator.ViewModel
         {
             Quiz loadedQuiz = dataAccess.ReadQuiz(connectionString);
 
-            // Kontrola błędów !
+            // Kontrola błędów nie istnieje !
             if (loadedQuiz == null) { return; }
 
             List<QuizQuestion> questions = dataAccess.ReadQuestions(loadedQuiz.Id, connectionString);
             loadedQuiz.Questions = questions;
 
-            // Kontrola błędów !
+            // Kontrola błędów nie istnieje !
             if (questions == null) { return; }
             foreach (QuizQuestion question in questions) {
                 List<QuizAnswer> answers = dataAccess.ReadAnswers(question.Id, connectionString);
@@ -111,6 +165,7 @@ namespace QuizGenerator.ViewModel
 
             quiz = loadedQuiz;
 
+            currentQuestionId = 0;
             QuizName = quiz.Name;
             QuestionName = quiz.Questions[0].Name;
             Answers = quiz.Questions[0].Answers.ToArray();
