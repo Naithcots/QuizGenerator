@@ -31,10 +31,10 @@ namespace QuizGenerator.Model
             this.Questions = new List<QuizQuestion>();
         }
 
-        public Quiz(long id, string name, List<QuizQuestion> questions) { 
-            this.Id = id;
-            this.Name = name;
-            this.Questions = questions;
-        }
+        //public Quiz(long id, string name, List<QuizQuestion> questions) { 
+        //    this.Id = id;
+        //    this.Name = name;
+        //    this.Questions = questions;
+        //}
     }
 }

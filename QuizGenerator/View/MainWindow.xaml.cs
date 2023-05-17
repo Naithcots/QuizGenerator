@@ -30,6 +30,7 @@ namespace QuizGenerator
         private void OpenReadFileDialog_Button(object sender, RoutedEventArgs e)
         {
             var dialog = new OpenFileDialog();
+            dialog.Filter = "SQLite database (*.db)|*.db";
 
             if(dialog.ShowDialog() == true)
             {
@@ -41,6 +42,7 @@ namespace QuizGenerator
         private void OpenSaveFileDialog_Button(object sender, RoutedEventArgs e)
         {
             var dialog = new SaveFileDialog();
+            dialog.Filter = "SQLite database (*.db)|*.db";
 
             if (dialog.ShowDialog() == true)
             {

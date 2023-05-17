@@ -24,10 +24,10 @@ namespace QuizGenerator.Model
             this.Answers = answers;
         }
 
-        public QuizQuestion(string name, List<QuizAnswer> answers)
-        {
-            this.Name = name;
-            this.Answers = answers;
-        }
+        //public QuizQuestion(string name, List<QuizAnswer> answers)
+        //{
+        //    this.Name = name;
+        //    this.Answers = answers;
+        //}
     }
 }

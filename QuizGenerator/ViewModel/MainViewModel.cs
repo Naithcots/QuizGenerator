@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Navigation;
 
@@ -140,9 +141,20 @@ namespace QuizGenerator.ViewModel
             Answers = quiz.Questions[(int)CurrentQuestionId].Answers.ToArray();
         }
 
+
         public void SaveQuizToDatabase(string connectionString)
         {
+            if (string.IsNullOrEmpty(quiz.Name) || 
+                quiz.Questions.Any(e => string.IsNullOrEmpty(e.Name)) || 
+                quiz.Questions.Any(q => q.Answers.Any(a => string.IsNullOrEmpty(a.Text))) ||
+                // Find questions without any correct answers 
+            {
+                MessageBox.Show("Nie można zapisać quizu z pustymi polami.", "Błąd zapisu", MessageBoxButton.OK, MessageBoxImage.Error);
+                return; 
+            }
+
             dataAccess.SaveQuiz(quiz, connectionString);
+            MessageBox.Show("Pomyślnie zapisano quiz.", "Zapis", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
 
@@ -151,7 +163,10 @@ namespace QuizGenerator.ViewModel
             Quiz loadedQuiz = dataAccess.ReadQuiz(connectionString);
 
             // Kontrola błędów nie istnieje !
-            if (loadedQuiz == null) { return; }
+            if (loadedQuiz == null) {
+                MessageBox.Show("Nie można wczytać pliku.", "Błąd odczytu", MessageBoxButton.OK, MessageBoxImage.Error);
+                return; 
+            }
 
             List<QuizQuestion> questions = dataAccess.ReadQuestions(loadedQuiz.Id, connectionString);
             loadedQuiz.Questions = questions;
