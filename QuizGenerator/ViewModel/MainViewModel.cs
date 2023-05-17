@@ -144,15 +144,35 @@ namespace QuizGenerator.ViewModel
 
         public void SaveQuizToDatabase(string connectionString)
         {
-            if (string.IsNullOrEmpty(quiz.Name) || 
-                quiz.Questions.Any(e => string.IsNullOrEmpty(e.Name)) || 
-                quiz.Questions.Any(q => q.Answers.Any(a => string.IsNullOrEmpty(a.Text))) ||
-                // Find questions without any correct answers 
+            if (string.IsNullOrEmpty(quiz.Name))
+            {
+                MessageBox.Show("Nie można zapisać quizu bez nazwy.", "Błąd zapisu", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (quiz.Questions.Any(e => string.IsNullOrEmpty(e.Name)) ||
+                 quiz.Questions.Any(q => q.Answers.Any(a => string.IsNullOrEmpty(a.Text))))
+            {
+                MessageBox.Show("Nie można zapisać quizu z pustymi polami.", "Błąd zapisu", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (quiz.Questions.Any(q => q.Answers.FindIndex(a => a.IsCorrect == 1) == -1))
+            {
+                MessageBox.Show("Nie można zapisać quizu z brakującymi prawidłowymi odpowiedziami.", "Błąd zapisu", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            /*
+             if (string.IsNullOrEmpty(quiz.Name) || 
+                 quiz.Questions.Any(e => string.IsNullOrEmpty(e.Name)) || 
+                 quiz.Questions.Any(q => q.Answers.Any(a => string.IsNullOrEmpty(a.Text))) ||
+                 quiz.Questions.Any(q => q.Answers.FindIndex(a => a.IsCorrect == 1 ) == -1))
             {
                 MessageBox.Show("Nie można zapisać quizu z pustymi polami.", "Błąd zapisu", MessageBoxButton.OK, MessageBoxImage.Error);
                 return; 
-            }
-
+            } 
+            */
             dataAccess.SaveQuiz(quiz, connectionString);
             MessageBox.Show("Pomyślnie zapisano quiz.", "Zapis", MessageBoxButton.OK, MessageBoxImage.Information);
         }
