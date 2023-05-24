@@ -15,6 +15,7 @@ namespace QuizGenerator.Model
         public void SaveQuiz(Quiz quiz, string connectionString)
         {
             SqliteConnection connection = new SqliteConnection($"Data Source={connectionString}");
+            Random random = new Random();
             connection.Open();
 
             string DropQuizTableString = "DROP TABLE IF EXISTS quiz";
@@ -61,7 +62,7 @@ namespace QuizGenerator.Model
                 command.CommandText = InsertQuestionString;
                 command.Parameters.AddWithValue("@quizid", quiz.Id);
                 command.Parameters.AddWithValue("@questionid", question.Id);
-                command.Parameters.AddWithValue("@questiontitle", question.Name);
+                command.Parameters.AddWithValue("@questiontitle", Base64Converter.Encode(question.Name));
                 command.ExecuteNonQuery();
                 command.Parameters.Clear();
 
@@ -70,8 +71,21 @@ namespace QuizGenerator.Model
                     string InsertAnswerString = @"INSERT INTO answer(question_id, text, is_correct) VALUES (@answerquestionid, @answertitle, @answercorrect)";
                     command.CommandText = InsertAnswerString;
                     command.Parameters.AddWithValue("@answerquestionid", question.Id);
-                    command.Parameters.AddWithValue("@answertitle", answer.Text);
-                    command.Parameters.AddWithValue("@answercorrect", answer.IsCorrect);
+                    command.Parameters.AddWithValue("@answertitle", Base64Converter.Encode(answer.Text));
+
+                    if(answer.IsCorrect == 1)
+                    {
+                        int randomEvenInt = random.Next(1, 100) * 2;
+                        string encoded = Base64Converter.Encode(randomEvenInt.ToString());
+                        command.Parameters.AddWithValue("@answercorrect", encoded);
+                    } else
+                    {
+                        int randomOddInt = random.Next(100) * 2 + 1;
+                        string encoded = Base64Converter.Encode(randomOddInt.ToString());
+                        command.Parameters.AddWithValue("@answercorrect", encoded);
+                    }
+
+                    //command.Parameters.AddWithValue("@answercorrect", answer.IsCorrect);
                     command.ExecuteNonQuery();
                     command.Parameters.Clear();
                 }
@@ -109,7 +123,8 @@ namespace QuizGenerator.Model
             SqliteDataReader result = command.ExecuteReader();
             while (result.Read())
             {
-                QuizQuestion question = new QuizQuestion((long)result["id"], (string)result["title"]);
+                string title = Base64Converter.Decode((string)result["title"]);
+                QuizQuestion question = new QuizQuestion((long)result["id"], title);
                 questions.Add(question);
             }
             connection.Close();
@@ -128,7 +143,9 @@ namespace QuizGenerator.Model
             SqliteDataReader result = command.ExecuteReader();
             while (result.Read())
             {
-                QuizAnswer answer = new QuizAnswer((long)result["id"], (string)result["text"], (long)result["is_correct"]);
+                string text = Base64Converter.Decode((string)result["text"]);
+                int isCorrect = int.Parse(Base64Converter.Decode((string)result["is_correct"]));
+                QuizAnswer answer = new QuizAnswer((long)result["id"], text, isCorrect % 2 == 0 ? 1 : 0);
                 answers.Add(answer);
             }
             connection.Close();
